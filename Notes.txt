@@ -1,0 +1,6 @@
+Middleware:-
+1- Application level
+2- Route level
+3- Error Handling
+4- Built-in
+5- Third Party
