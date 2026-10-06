@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const checkroles = require('../middleware/roleMiddleware');
 const studentModel = require('../models/studentModel');
+const authMiddleware = require('../middleware/authMiddleware');
 
 let students = [
     {
@@ -20,19 +21,19 @@ let students = [
 router.use(express.json());//we use this middleware to parse the incoming request body in json format
 //to read the data we call app.get() method
 //requesting all resources from the server
-router.get('/',checkroles('teacher','student','admin'),(req,res)=>{
+router.get('/',authMiddleware,checkroles('teacher','student','admin'),(req,res)=>{
     students = studentModel.find();
     res.json(students)//sending response in json format
 })
 //reading data on the basis of filter 
-router.get('/search',checkroles('teacher','student','admin'),(req, res) => {
+router.get('/search',authMiddleware,checkroles('teacher','student','admin'),(req, res) => {
     const course = req.query.course;
     const age = parseInt(req.query.age);
     const student = students.filter(s =>s.course.toLowerCase() === course.toLowerCase() && s.age === parseInt(age));
     res.json(student);
 });
 
-router.get('/:id',checkroles('teacher','student','admin'),(req,res)=>{   
+router.get('/:id',authMiddleware,checkroles('teacher','student','admin'),(req,res)=>{   
     const id = parseInt(req.params.id); //params is used to get the value of the parameter in the url
     const student = students.find(student=>(student.id === id));
     if(!student){
@@ -44,7 +45,7 @@ router.get('/:id',checkroles('teacher','student','admin'),(req,res)=>{
 });
 
 //post method is used to create a new resource on the server
-router.post("/",checkroles('teacher','admin'),(req,res)=>{
+router.post("/",authMiddleware,checkroles('teacher','admin'),(req,res)=>{
     const newStudent={
         id:students.length+1,
         name:req.body.name,
@@ -60,7 +61,7 @@ router.post("/",checkroles('teacher','admin'),(req,res)=>{
 })
 
 
-router.delete("/:id",checkroles('admin'),(req,res)=>{
+router.delete("/:id",authMiddleware,checkroles('admin'),(req,res)=>{
     const id = parseInt(req.params.id);
     const student = students.find(student=>student.id === id)
     if(!student){  
@@ -71,7 +72,7 @@ router.delete("/:id",checkroles('admin'),(req,res)=>{
 })
 
 //----------------Put metod is used to update a resource on the server change the all the fields of the resource
-router.put("/:id",checkroles('admin'),(req,res)=>{
+router.put("/:id",authMiddleware,checkroles('admin'),(req,res)=>{
     const id = parseInt(req.params.id);
     const student = students.find(student=>student.id === id);
     if(!student){
@@ -88,7 +89,7 @@ router.put("/:id",checkroles('admin'),(req,res)=>{
 )
 
 //----------------Patch method is used to update a resource on the server change the some fields of the resource
-router.patch("/:id",checkroles('admin'),(req,res)=>{
+router.patch("/:id",authMiddleware,checkroles('admin'),(req,res)=>{
     const id = parseInt(req.params.id);
     const student = students.find(student=>student.id === id);
     if(!student){

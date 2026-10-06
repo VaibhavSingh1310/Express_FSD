@@ -1,17 +1,13 @@
 const checkroles = (...allowedroles)=>{
     return (req,res,next)=>{
-        const role = req.headers.role;
-        if(!role){
-            return res.status(404).json({message:"Role is not provided"});
+        if(!req.user){
+            return res.status(401).json({message:"User is not authenticated"});
         }
-        if(allowedroles.includes(role)){
-            next();
+        if(!allowedroles.includes(req.user.role)){
+            return res.status(403).json({message:"You are not allowed to visit this page"});
+            
         }
-        else{
-            return res.status(403).json({
-                message:"You are not allowed to visit this page"
-            })
-        }
+        next();
     }
 
 }
