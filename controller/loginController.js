@@ -1,6 +1,6 @@
 const userModel = require("../model/userModel");
 const bcrypt = require("bcrypt");
-const { generateToken } = require("../utils/generateToken");
+const { generateTokenAccess,generateTokenRefresh } = require("../utils/jwt");
 
 const logUser = async (req, res) => {
     try {
@@ -29,23 +29,25 @@ const logUser = async (req, res) => {
         }
 
         // Generate token
-        const token = generateToken(user._id);
+        const accessToken = generateTokenAccess(user);
+        const refreshToken = generateTokenRefresh(user);
 
-        // Store token in HTTP-only cookie
-        res.cookie("token", token, {
+        ///access token
+        res.cookie("accessToken", accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            maxAge: 60 * 60 * 1000 // 1 hour
+            maxAge: 15*60*1000 // 15 minutes
         });
 
-        // Remove password before sending user data
-        const { password: _, ...userWithoutPassword } = user.toObject();
-
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 7*24*60*60*1000 // 7 days
+        });
         return res.status(200).json({
             message: "login successful",
             user: userWithoutPassword
         });
-
     } catch (err) {
         return res.status(500).json({
             message: "something went wrong",

@@ -18,6 +18,12 @@ const userSchema = new mongoose.Schema({
         required: true,
         enum: ['student', 'teacher', 'admin'],
         default: 'student'
+    },
+    refreshToken:{
+        type:String,
+        default:"null"
     }
+    
+
 });
 module.exports = mongoose.model('User', userSchema);
